@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="groupfind">
+    <output-path>$PROJECT_DIR$/out/artifacts/groupfind</output-path>
+    <root id="archive" name="groupfind.jar">
+      <element id="module-output" name="GroupFind" />
+    </root>
+  </artifact>
+</component>

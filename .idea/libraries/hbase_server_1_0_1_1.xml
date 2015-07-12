@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="hbase-server-1.0.1.1">
+    <CLASSES>
+      <root url="jar://E:/hadoop/hbase-1.0.1.1/lib/hbase-server-1.0.1.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
