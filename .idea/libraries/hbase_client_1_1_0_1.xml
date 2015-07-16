@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="hbase-client-1.1.0.1">
+    <CLASSES>
+      <root url="jar://D:/spark-src/lib/hbase-1.1.0.1/lib/hbase-client-1.1.0.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

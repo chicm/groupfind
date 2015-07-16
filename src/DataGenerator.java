@@ -13,23 +13,32 @@ public class DataGenerator
     static int numHotel = 10;
     public static void main(String[] args) throws Exception
     {
-        if(args.length < 4) {
-            System.err.println("Only " + args.length + " arguments supplied, required: 4");
-            System.err.println("Usage: DataGenerator SaveFilePath numPerson numHotel numRecord");
+        if(args.length < 5) {
+            System.err.println("Only " + args.length + " arguments supplied, required: 5");
+            System.err.println("Usage: DataGenerator SaveFilePath numPerson numHotel numRecord year");
             System.exit(-1);
         }
         SimpleDateFormat format = new SimpleDateFormat("YYYY-MM-dd");
         int numPerson = Integer.parseInt(args[1]);
         numHotel = Integer.parseInt(args[2]);
         int numRecord = Integer.parseInt(args[3]);
-        genPersonInfo(numPerson);
-
+        int year = Integer.parseInt(args[4]);
+        if(year < 1900 || year > 2020) {
+            return;
+        }
+        genPersonInfo(numPerson*2);
+        genGroups(year);
+        groupIndex = 0;
         String strFileName = args[0] + "/hotel";
         FileOutputStream fos=new FileOutputStream(strFileName,false);
         OutputStreamWriter writer = new OutputStreamWriter(fos,"UTF-8");
 
         for(int i=0;i<numRecord;i++) {
-            writer.write(genRegInfo(format.parse("2014-01-01"))+"\n");
+            if(i > 0 && groupIndex < groups.length && (i % 2 == 0)) {
+                writer.write(groups[groupIndex++] + "\n");
+            } else {
+                writer.write(genRegInfo(year) + "\n");
+            }
         }
         writer.close();
 
@@ -38,9 +47,51 @@ public class DataGenerator
             writer2.write(String.format("%s,,,\n", personIDs[i]));
         }
         writer2.close();
+
+        OutputStreamWriter writer3 = new OutputStreamWriter(new FileOutputStream(args[0] + "/groups",false),"UTF-8");
+        for(int i=0;i<groups.length;i++) {
+            writer3.write(groups[i] + "\n");
+        }
+        writer3.close();
     }
     static Map<String, Set<Integer>> regMap = new HashMap<>();
-    static String genRegInfo(Date date)
+    static String[] groups = new String[24];
+    static int groupIndex = 0;
+    static void genGroups(int year) {
+        if(numHotel < 5) {
+            return;
+        }
+        int hotelID = 1;
+        int personID = personMap.size()/4;
+        if(personID < 3) {
+            return;
+        }
+        for(int i = 0; i < 4; i++) {
+            String checkinTime = generateCheckinTime(year);
+            for(int j = 0; j < 2; j++) {
+                StringBuffer aRecBuf = new StringBuffer();
+                aRecBuf.append(personMap.get(personIDs[personID++]) + ",");
+                aRecBuf.append(checkinTime);
+                aRecBuf.append(",888,");
+                aRecBuf.append(generateHotelInfo(hotelID));
+                aRecBuf.append(",530102,云南省昆明市五华区,530102410000,昆明市公安局五华分局虹山派出所");
+                groups[groupIndex++] = aRecBuf.toString();
+            }
+            checkinTime = generateCheckinTime(year);
+            for(int j = 0; j < 4; j++) {
+                StringBuffer aRecBuf = new StringBuffer();
+                aRecBuf.append(personMap.get(personIDs[personID++]) + ",");
+                aRecBuf.append(checkinTime);
+                aRecBuf.append(",888,");
+                aRecBuf.append(generateHotelInfo(hotelID));
+                aRecBuf.append(",530102,云南省昆明市五华区,530102410000,昆明市公安局五华分局虹山派出所");
+                groups[groupIndex++] = aRecBuf.toString();
+            }
+            hotelID++;
+            personID = personMap.size()/4;
+        }
+    }
+    static String genRegInfo(int year)
     {
         StringBuffer aRecBuf = new StringBuffer();
         String id = getPersonID();
@@ -56,7 +107,7 @@ public class DataGenerator
         regMap.get(id).add(hotelID);
 
         aRecBuf.append(personMap.get(id) + ",");
-        aRecBuf.append(generateCheckinTime(date));
+        aRecBuf.append(generateCheckinTime(year));
         aRecBuf.append(",888,");
         aRecBuf.append(generateHotelInfo(hotelID));
         aRecBuf.append(",530102,云南省昆明市五华区,530102410000,昆明市公安局五华分局虹山派出所");
@@ -76,7 +127,7 @@ public class DataGenerator
             boolean sex = random.nextBoolean();
             String id = "";
             while(s.contains(id)) {
-                id = String.format("53%04d%s%03d%s", Math.abs(random.nextInt()) % 10000, DOB, Math.abs(random.nextInt()) % 1000, (sex ? "1" : "2"));
+                id = String.format("%06d%s%03d%s", Math.abs(random.nextInt() % 1000000), DOB, Math.abs(random.nextInt()) % 1000, (sex ? "1" : "2"));
             }
             s.add(id);
             personIDs[i] = id;
@@ -102,10 +153,28 @@ public class DataGenerator
                 (male ? firstNameM[Math.abs(random.nextInt()%firstNameM.length)]
                 : firstNameF[Math.abs(random.nextInt()%firstNameF.length)]);
     }
-    static String generateCheckinTime(Date checkinDate)
+    static String generateCheckinTime(int year)
     {
-        SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
-        return String.format("%s %02d:%02d:%02d", f.format(checkinDate),
+        int month = Math.abs(random.nextInt()) % 12 + 1;
+        int day = 1;
+        switch(month) {
+            case 1:
+            case 3:
+            case 5:
+            case 7:
+            case 8:
+            case 10:
+            case 12:
+                day = Math.abs(random.nextInt()) % 31 + 1;
+                break;
+            case 2:
+                day = Math.abs(random.nextInt()) % 28 + 1;
+                break;
+            default:
+                day = Math.abs(random.nextInt()) % 30 + 1;
+    }
+        String checkinDate = String.format("%04d-%02d-%02d", year,month, day );
+        return String.format("%s %02d:%02d:%02d", checkinDate,
                 Math.abs(random.nextInt()) % 24, Math.abs(random.nextInt())%60, Math.abs(random.nextInt())%60);
     }
     static String generateHotelInfo(int hotelID)
