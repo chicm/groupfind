@@ -44,7 +44,8 @@ public class DataGenerator
 
         OutputStreamWriter writer2 = new OutputStreamWriter(new FileOutputStream(args[0] + "/cand",false),"UTF-8");
         for(int i=0;i<personIDs.length/2;i++) {
-            writer2.write(String.format("%s,,,\n", personIDs[i]));
+            writer2.write(String.format("%s,test1,test2,%s-%s-%s\n", personIDs[i],
+                    personIDs[i].substring(6,10), personIDs[i].substring(10,12), personIDs[i].substring(12,14)));
         }
         writer2.close();
 

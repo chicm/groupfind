@@ -1,33 +1,22 @@
 import org.apache.spark.mllib.fpm.FPGrowth
-import org.apache.spark.{SparkContext, SparkConf}
+import org.apache.spark.{SparkConf, SparkContext}
 
 import scala.collection.mutable
-import scala.collection.mutable.{ListBuffer, ArrayBuffer}
+import scala.collection.mutable.{ArrayBuffer, ListBuffer}
 
 /**
  * Created by chicm on 2015/7/11.
  */
-object GroupFind {
+object MySingle {
   def main(args: Array[String]): Unit = {
     if (args == null || args.length < 4) {
-      println("usage: GroupFind candidateFile hotelFile minCount out")
+      println("usage: MySingle hotelFile id minCount out")
       return
     }
     val conf = new SparkConf().setAppName("GroupFind")
-
-    conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-    //conf.set("spark.kryo.registrationRequired", "true")
-    conf.set("spark.kryoserializer.buffer.max", "2047m")
-    conf.registerKryoClasses(Array(classOf[org.apache.spark.rdd.RDD[scala.Predef.String]], classOf[mutable.HashSet[String]],
-      classOf[ArrayBuffer[String]], classOf[ListBuffer[String]], classOf[Array[String]],
-      classOf[Array[scala.Tuple2[String,String]]] /*, classOf[org.apache.spark.mllib.fpm.FPTree]*/)) // try to workaround SPARK-7483 https://issues.apache.org/jira/browse/SPARK-7483
-
     val sc = new SparkContext(conf)
-    val cand = new mutable.HashSet[String]()
-    sc.textFile(args(0)).map(_.split(",")(0)).collect().foreach(cand.add(_))
-    val bcCand = sc.broadcast(cand);
 
-    val regRDD = sc.textFile(args(1)).map(_.split(",")).filter((arr)=>bcCand.value.contains(arr(2)))
+    val regRDD = sc.textFile(args(0)).map(_.split(",")).filter((arr)=>arr(2).equalsIgnoreCase(args(1)))
 
     regRDD.map((arr) =>(arr(6)+arr(4).substring(0,10), arr(2) )).groupByKey().values
           .map(_.mkString("", ",", "")).saveAsTextFile(args(3)+"/basket")

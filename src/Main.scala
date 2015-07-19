@@ -42,8 +42,13 @@ object Main {
       val sourceRDD = sourceDoc.map(_.split(",")).filter(arrs => arrs.length > 3).map(arrs => Row(arrs(0), arrs(1), arrs(2), arrs(3))).cache()
       //val accum = sparkContext.accumulator(0)
       val sources = sourceRDD.collect()
+      val total = sources.length
+      //println(sources.length)
+     // var counter = 0
       val travelsRDD = sources.map(srow => {
         //accum += 1
+        //print(counter+"/"+total)
+        //counter += 1;
         val rsRDD = sqlContext.sql("select sfzh,lgdm,rzsj from native where sfzh='" + srow.getString(0) + "'")
         println("*********" + srow.getString(0) + "********")
         val columns = rsRDD.collect()
@@ -63,14 +68,17 @@ object Main {
 
             travelRDD.map { row => (row.get(2), row) }
           }).reduce((r1, r2) => r1.union(r2)).cache().groupBy(rs => rs._1).cache().filter(trs => trs._2.size >= Integer.valueOf(args(2))).cache() //.saveAsTextFile(args(1))
-
+          if (!travels.isEmpty()) {
           sparkContext.parallelize(travels.map(travel => {
             travel._2.map(row => {
               row._2
             }).toList
           }).cache().reduce((r1, r2) => {
             r1.++(r2)
-          })).cache().map(row => {
+          }))
+        } else {
+          null
+        }/*cache().map(row => {
             val put = new Put(Bytes.toBytes(row.getString(2) + "|" + row.getString(6) + "|" + row.getString(4)))
             put.add(Bytes.toBytes("r"), Bytes.toBytes("xb"), Bytes.toBytes(row.getString(0)))
             put.add(Bytes.toBytes("r"), Bytes.toBytes("xb"), Bytes.toBytes(row.getString(1)))
@@ -87,7 +95,7 @@ object Main {
             put.add(Bytes.toBytes("r"), Bytes.toBytes("gajgmc"), Bytes.toBytes(row.getString(12)))
 
             (new org.apache.hadoop.hbase.io.ImmutableBytesWritable, put)
-          }).cache()
+          }).cache()*/
         }
         else {
           null
@@ -95,7 +103,7 @@ object Main {
       }).reduce((r1, r2) => if (r1 != null && r2 != null) r1.union(r2) else (if (r1 != null) r1 else (if (r2 != null) r2 else null))).cache()
 
       //print(accum.value)
-
+/*
       val hbaseConf = HBaseConfiguration.create()
       hbaseConf.set("hbase.zookeeper.property.clientPort", "2181")
       hbaseConf.set("hbase.zookeeper.quorum", "jd-master,jd-slave1,jd-slave2")
@@ -105,7 +113,8 @@ object Main {
       jobConf.set(TableOutputFormat.OUTPUT_TABLE, "travels")
 
       new PairRDDFunctions(travelsRDD).saveAsHadoopDataset(jobConf)
-
+*/
+      travelsRDD.saveAsTextFile(args(3))
       sparkContext.stop();
     }
   }

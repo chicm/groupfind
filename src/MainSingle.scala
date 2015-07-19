@@ -59,7 +59,9 @@ object MainSingle {
           }).toList
         }).reduce((r1, r2) => {
           r1.++(r2)
-        })).map(row => {
+        })).saveAsTextFile(args(3))
+      }
+          /*.map(row => {
           val put = new Put(Bytes.toBytes(row.getString(2) + "|" + row.getString(6) + "|" + row.getString(4)))
           put.add(Bytes.toBytes("r"), Bytes.toBytes("xb"), Bytes.toBytes(row.getString(0)))
           put.add(Bytes.toBytes("r"), Bytes.toBytes("xb"), Bytes.toBytes(row.getString(1)))
@@ -87,7 +89,7 @@ object MainSingle {
         jobConf.set(TableOutputFormat.OUTPUT_TABLE, "travels")
 
         new PairRDDFunctions(travelsRDD).saveAsHadoopDataset(jobConf)
-      }
+      }*/
       sparkContext.stop();
     }
   }

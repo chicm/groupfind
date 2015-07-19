@@ -8,12 +8,12 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="scala-sdk-2.11.7" level="application" />
-    <orderEntry type="library" name="spark-assembly-1.4.0-hadoop2.2.0" level="project" />
-    <orderEntry type="library" name="hadoop-common-2.7.1" level="project" />
-    <orderEntry type="library" name="hbase-common-1.0.1.1" level="project" />
-    <orderEntry type="library" name="hbase-client-1.0.1.1" level="project" />
+    <orderEntry type="library" name="hadoop-common-2.7.11" level="project" />
+    <orderEntry type="library" name="spark-assembly-1.4.0-hadoop2.6.0" level="project" />
+    <orderEntry type="library" name="hbase-server-1.1.0.11" level="project" />
+    <orderEntry type="library" name="hbase-common-1.1.0.11" level="project" />
+    <orderEntry type="library" name="hbase-client-1.1.0.11" level="project" />
     <orderEntry type="library" name="hadoop-mapreduce-client-app-2.5.1" level="project" />
-    <orderEntry type="library" name="hbase-server-1.0.1.1" level="project" />
     <orderEntry type="library" name="hadoop-mapreduce-client-core-2.5.1" level="project" />
   </component>
 </module>
