@@ -24,8 +24,10 @@ object GroupFind2 {
 
     val sc = new SparkContext(conf)
     //val candSet = new mutable.HashSet[String]()
-    val candMap = new mutable.HashMap[String, Int]
+
     val candarray = sc.textFile(args(0)).map(_.split(",")(0)).collect()
+    //val candMap = candarray.zipWithIndex.toMap
+    val candMap = new mutable.HashMap[String, Int]
     //candarray.foreach((ele) => { var i = 0; candMap.put(ele, i) ; i+=1; })
     for(i <- 0 until candarray.length) { candMap.put(candarray(i), i)}
 
@@ -36,23 +38,26 @@ object GroupFind2 {
     for(i <- 1 to 1000) {
       println("*******"+candarray(i)+ ":" + bcCandMap.value.getOrElse(candarray(i), -1))
     }
-    regRDD.map((arr) =>(arr(6)+arr(4).substring(0,10), bcCandMap.value.getOrElse(arr(2), -1) )).groupByKey().values
-          .map(_.mkString("", ",", "")).saveAsTextFile(args(3)+"/basket")
+    val trans = regRDD.map((arr) =>(arr(6)+arr(4).substring(0,10), bcCandMap.value.getOrElse(arr(2), -1) )).groupByKey().values
+                .map(_.toArray).cache()
+          //.map(_.mkString("", ",", "")).saveAsTextFile(args(3)+"/basket")
 
     //val trans = regRDD.map((arr) =>(arr(6)+arr(4).substring(0,10), bcCandMap.value.getOrElse(arr(2), -1) )).groupByKey().values
     //trans.collect.map(_.mkString("", ",", "")).saveAsTextFile(args(3)+"/basket")
-    val trans = sc.textFile(args(3)+"/basket").map(_.split(",")).map(_.map(_.toInt))
+    //val trans = sc.textFile(args(3)+"/basket").map(_.split(",")).map(_.map(_.toInt))
 
     val model = new FPGrowth()
       .setMinSupport(args(2).toDouble/trans.count())
-      .setNumPartitions(8)
+      .setNumPartitions(48)
       .run(trans)
 
     //println(s"Number of frequent itemsets: ${model.freqItemsets.count()}")
+    val bcCandArray = sc.broadcast(candarray)
+    model.freqItemsets.filter(_.items.length>1).coalesce(3).map(itemset =>(itemset.items.map(bcCandArray.value(_)),itemset.freq)).map(itemset =>
+      itemset._1.mkString("[", ",", "]") + "," + itemset._2).saveAsTextFile(args(3)+"/result")
 
-
-      model.freqItemsets.filter(_.items.length>1).map(itemset =>
-      itemset.items.mkString("[", ",", "]") + ", " + itemset.freq).saveAsTextFile(args(3)+"/result")
+     // model.freqItemsets.filter(_.items.length>1).map(itemset =>
+      //itemset.items.mkString("[", ",", "]") + ", " + itemset.freq).saveAsTextFile(args(3)+"/result")
 
     /*model.freqItemsets.filter(_.items.length>1).collect().foreach { itemset =>
       println(itemset.items.mkString("[", ",", "]") + ", " + itemset.freq)
