@@ -55,7 +55,7 @@ public class DataGenerator
         }
         writer3.close();
     }
-    static Map<String, Set<Integer>> regMap = new HashMap<>();
+    //static Map<String, Set<Integer>> regMap = new HashMap<>();
     static String[] groups = new String[24];
     static int groupIndex = 0;
     static void genGroups(int year) {
@@ -73,9 +73,8 @@ public class DataGenerator
                 StringBuffer aRecBuf = new StringBuffer();
                 aRecBuf.append(personMap.get(personIDs[personID++]) + ",");
                 aRecBuf.append(checkinTime);
-                aRecBuf.append(",888,");
+                aRecBuf.append(String.format(",%04d,", Math.abs(random.nextInt()) % 1000 + 100 ));
                 aRecBuf.append(generateHotelInfo(hotelID));
-                aRecBuf.append(",530102,云南省昆明市五华区,530102410000,昆明市公安局五华分局虹山派出所");
                 groups[groupIndex++] = aRecBuf.toString();
             }
             checkinTime = generateCheckinTime(year);
@@ -83,9 +82,8 @@ public class DataGenerator
                 StringBuffer aRecBuf = new StringBuffer();
                 aRecBuf.append(personMap.get(personIDs[personID++]) + ",");
                 aRecBuf.append(checkinTime);
-                aRecBuf.append(",888,");
+                aRecBuf.append(String.format(",%04d,", Math.abs(random.nextInt()) % 1000 + 100 ));
                 aRecBuf.append(generateHotelInfo(hotelID));
-                aRecBuf.append(",530102,云南省昆明市五华区,530102410000,昆明市公安局五华分局虹山派出所");
                 groups[groupIndex++] = aRecBuf.toString();
             }
             hotelID++;
@@ -97,6 +95,7 @@ public class DataGenerator
         StringBuffer aRecBuf = new StringBuffer();
         String id = getPersonID();
         int hotelID = Math.abs(random.nextInt()) % numHotel;
+        /*
         while(regMap.containsKey(id) && regMap.get(id).contains(hotelID)) {
             id = getPersonID();
             hotelID = Math.abs(random.nextInt()) % numHotel;
@@ -105,13 +104,12 @@ public class DataGenerator
             Set<Integer> hotels = new HashSet<>();
             regMap.put(id, hotels);
         }
-        regMap.get(id).add(hotelID);
+        regMap.get(id).add(hotelID);*/
 
         aRecBuf.append(personMap.get(id) + ",");
         aRecBuf.append(generateCheckinTime(year));
-        aRecBuf.append(",888,");
+        aRecBuf.append(String.format(",%04d,", Math.abs(random.nextInt()) % 1000 + 100));
         aRecBuf.append(generateHotelInfo(hotelID));
-        aRecBuf.append(",530102,云南省昆明市五华区,530102410000,昆明市公安局五华分局虹山派出所");
         return aRecBuf.toString();
     }
 
@@ -180,7 +178,8 @@ public class DataGenerator
     }
     static String generateHotelInfo(int hotelID)
     {
-        return String.format("5301810011000%02d,招待所_%02d,虹山南路%02d号", hotelID, hotelID, hotelID);
+        return String.format("5301810011000%02d,招待所_%02d,虹山南路%02d号,530102,云南省昆明市五华区,530102410000,昆明市公安局五华分局虹山派出所",
+                hotelID, hotelID, hotelID);
     }
 
 }
